@@ -1,11 +1,9 @@
 import cobra
-import matplotlib
+import matplotlib as plt
 import pandas as pd
 import requests
 import scipy.stats
 import numpy as np
-
-#test
 
 modelOriginal = cobra.io.load_matlab_model('Recon3D.mat')
 data = pd.read_csv('GSE115469_Data.csv')
@@ -14,8 +12,9 @@ with modelOriginal as model:
 	rxns = model.genes
 	gene_info = {}
 	count = 0
+	print('Getting gene info')
 	for i in rxns:
-		url = 'http://bigg.ucsd.edu/api/v2/models/Recon3D/genes'+str(i)
+		url = 'http://bigg.ucsd.edu/api/v2/models/Recon3D/genes/'+str(i)
 		r = requests.get(url)
 		gene_info[r.json()['name']] = i.id
 		count += 1
@@ -38,11 +37,11 @@ for num in range(len(gene_matches[:10])):
 results_T = results.T
 for i in range(len(results_T)):
 	results_T[i] -= np.ones(len(results_T[i]))*scipy.stats.mode(results_T[i])[0]
-matplotlib.rcParams.update({"figure.figsize":(20,15)})
+plt.rcParams.update({"figure.figsize":(20,15)})
 fig, axs = plt.subplots(10,10)
 for i in range(len(results_T)):
 	for j in range(len(results_T)):
 		axs[i, j].scatter(results_T[i], results_T[j])
 		axs[i, j].set_xlabel(dimnames[i*1000])
 		axs[i, j].set_ylabel(dimnames[j*1000])
-matplotlib.pyplot.tight_layout()
+plt.pyplot.tight_layout()
