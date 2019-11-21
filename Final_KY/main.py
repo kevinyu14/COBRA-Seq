@@ -1,5 +1,5 @@
 import cobra
-import matplotlib as plt
+import matplotlib.pyplot as plt
 import pandas as pd
 import requests
 import scipy.stats
@@ -57,4 +57,3 @@ for i in range(len(results_T)):
         axs[i, j].scatter(results_T[i], results_T[j])
         axs[i, j].set_xlabel(dimnames[i * 1000])
         axs[i, j].set_ylabel(dimnames[j * 1000])
-tight_layout()
