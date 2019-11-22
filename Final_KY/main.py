@@ -4,7 +4,7 @@ import pandas as pd
 import scipy.stats
 import numpy as np
 import multiprocessing as mp
-p = mp.Pool(3)
+import functools
 
 
 gene_results = []
@@ -50,15 +50,24 @@ num_cells = 1000
 results = np.zeros((num_cells, len(gene_matches[:10])))
 dimnames = []
 print('starting models')
+p = mp.Pool(3)
 for num in range(len(gene_matches[:10])):
+    print('starting async')
     for i in range(len(list(data.loc[gene_matches[0]][:1000]))):
         print("gene #: %d cell #: %d" % (num, i))
         dimnames.append(gene_matches[num])
         temp_gene_name = gene_matches[num]
         print('starting async')
         p.apply_async(optimize_for_gene, args=(gene_matches(num), i), callback=collect_results)
-p.close()
+
+    #results = [p.apply(optimize_for_gene, args=(gene_matches(num), i)) for i in range(num_cells)]
+    #p.join()
+    #temp = results.copy()
+    #gene_results.append(temp)
+    #results = []
 p.join()
+p.close()
+
 
 print('plotting')
 results_T = results.T
