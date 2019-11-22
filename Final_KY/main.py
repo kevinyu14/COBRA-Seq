@@ -26,7 +26,7 @@ def collect_results(result):
     gene_results.append(result)
 
 
-data = pd.read_csv('GSE115469_Data.csv')
+data = pd.read_csv('GSE115469_Data.csv', index_col = 0)
 genes_in_sc = data.index
 f = open('map.txt', 'r')
 dict_temp = f.readlines()
@@ -40,11 +40,12 @@ for i in list_dict:
     gene_info[tempkey] = tempval
 print('loading model')
 modelOriginal = cobra.io.load_matlab_model('Recon3D.mat')
-
+print(genes_in_sc)
+print(gene_info.keys())
 
 gene_matches = [genes_in_sc[i] for i in range(len(genes_in_sc)) if genes_in_sc[i] in gene_info.keys()]
 
-
+print(gene_matches)
 num_cells = 1000
 results = np.zeros((num_cells, len(gene_matches[:10])))
 dimnames = []
@@ -66,6 +67,7 @@ for i in range(len(results_T)):
 fig, axs = plt.subplots(10, 10)
 for i in range(len(results_T)):
     for j in range(len(results_T)):
+        print(results_T[i])
         axs[i, j].scatter(results_T[i], results_T[j])
         axs[i, j].set_xlabel(dimnames[i * 1000])
         axs[i, j].set_ylabel(dimnames[j * 1000])
