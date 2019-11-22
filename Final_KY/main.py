@@ -1,21 +1,29 @@
 import cobra
 import matplotlib.pyplot as plt
 import pandas as pd
-import requests
 import scipy.stats
 import numpy as np
 import multiprocessing as mp
 p = mp.Pool(3)
 
-def optimize_for_gene(name, cell_num, gene_num):
+
+gene_results = []
+
+
+def optimize_for_gene(name, cell_num):
     with modelOriginal as model:
         expression = data.loc[name][cell_num]
         reactions = model.genes.get_by_id(gene_info[name]).reactions
         for j in reactions:
             j.lower_bound = expression * 100
             j.upper_bound = expression * 100
-        FBASolution = model.optimize('maximize')
-        results[cell_num, gene_num] = FBASolution.objective_value
+        fbas = model.optimize('maximize')
+        return [name, fbas.objective_value]
+
+
+def collect_results(result):
+    global gene_results
+    gene_results.append(result)
 
 
 data = pd.read_csv('GSE115469_Data.csv')
@@ -30,7 +38,7 @@ for i in list_dict:
     tempkey = i.split(',')[0]
     tempval = i.split(',')[1]
     gene_info[tempkey] = tempval
-
+print('loading model')
 modelOriginal = cobra.io.load_matlab_model('Recon3D.mat')
 
 
@@ -40,14 +48,18 @@ gene_matches = [genes_in_sc[i] for i in range(len(genes_in_sc)) if genes_in_sc[i
 num_cells = 1000
 results = np.zeros((num_cells, len(gene_matches[:10])))
 dimnames = []
+print('starting models')
 for num in range(len(gene_matches[:10])):
     for i in range(len(list(data.loc[gene_matches[0]][:1000]))):
         print("gene #: %d cell #: %d" % (num, i))
         dimnames.append(gene_matches[num])
         temp_gene_name = gene_matches[num]
-        optimize_for_gene(gene_matches(num), i)
+        print('starting async')
+        p.apply_async(optimize_for_gene, args=(gene_matches(num), i), callback=collect_results)
+p.close()
+p.join()
 
-
+print('plotting')
 results_T = results.T
 for i in range(len(results_T)):
     results_T[i] -= np.ones(len(results_T[i])) * scipy.stats.mode(results_T[i])[0]
@@ -57,3 +69,4 @@ for i in range(len(results_T)):
         axs[i, j].scatter(results_T[i], results_T[j])
         axs[i, j].set_xlabel(dimnames[i * 1000])
         axs[i, j].set_ylabel(dimnames[j * 1000])
+plt.show()
