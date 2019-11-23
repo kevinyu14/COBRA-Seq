@@ -22,6 +22,7 @@ def optimize_for_gene(name, cell_num):
 
 def collect_results(result):
     global gene_results
+    print('callback')
     gene_results.append(result)
 
 
@@ -59,13 +60,6 @@ for num in range(len(gene_matches[:10])):
         temp_gene_name = gene_matches[num]
         print('starting async')
         p.apply_async(optimize_for_gene, args=(gene_matches[num], i), callback=collect_results)
-
-    #results = [p.apply(optimize_for_gene, args=(gene_matches(num), i)) for i in range(num_cells)]
-    #p.join()
-    #temp = results.copy()
-    #gene_results.append(temp)
-    #results = []
-p.join()
 p.close()
 
 
