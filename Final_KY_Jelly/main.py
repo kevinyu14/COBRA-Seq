@@ -6,10 +6,9 @@ import numpy as np
 import multiprocessing as mp
 
 
-gene_results = []
-
-
 def optimize_for_gene(name, cell_num):
+    print('model start')
+    global modelOriginal
     with modelOriginal as model:
         expression = data.loc[name][cell_num]
         reactions = model.genes.get_by_id(gene_info[name]).reactions
@@ -20,13 +19,7 @@ def optimize_for_gene(name, cell_num):
         return [name, fbas.objective_value]
 
 
-def collect_results(result):
-    global gene_results
-    print('callback')
-    gene_results.append(result)
-
-
-data = pd.read_csv('GSE115469_Data.csv', index_col = 0)
+data = pd.read_csv('GSE115469_Data.csv', index_col=0)
 genes_in_sc = data.index
 f = open('map.txt', 'r')
 dict_temp = f.readlines()
@@ -52,6 +45,7 @@ results = np.zeros((num_cells, len(gene_matches[:10])))
 dimnames = []
 print('starting models')
 p = mp.Pool(3)
+gene_results = []
 for num in range(len(gene_matches[:10])):
     print('starting async')
     for i in range(len(list(data.loc[gene_matches[0]][:1000]))):
@@ -59,8 +53,9 @@ for num in range(len(gene_matches[:10])):
         dimnames.append(gene_matches[num])
         temp_gene_name = gene_matches[num]
         print('starting async')
-        p.apply_async(optimize_for_gene, args=(gene_matches[num], i), callback=collect_results)
+        gene_results.append(p.apply_async(optimize_for_gene, args=(gene_matches[num], i)))
 p.close()
+p.join()
 
 
 print('plotting')
