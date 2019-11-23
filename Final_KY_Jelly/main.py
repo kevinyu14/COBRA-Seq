@@ -4,7 +4,6 @@ import pandas as pd
 import scipy.stats
 import numpy as np
 import multiprocessing as mp
-import functools
 
 
 gene_results = []
@@ -38,6 +37,7 @@ for i in list_dict:
     tempkey = i.split(',')[0]
     tempval = i.split(',')[1]
     gene_info[tempkey] = tempval
+f.close()
 print('loading model')
 modelOriginal = cobra.io.load_matlab_model('Recon3D.mat')
 print(genes_in_sc)
@@ -58,7 +58,7 @@ for num in range(len(gene_matches[:10])):
         dimnames.append(gene_matches[num])
         temp_gene_name = gene_matches[num]
         print('starting async')
-        p.apply_async(optimize_for_gene, args=(gene_matches(num), i), callback=collect_results)
+        p.apply_async(optimize_for_gene, args=(gene_matches[num], i), callback=collect_results)
 
     #results = [p.apply(optimize_for_gene, args=(gene_matches(num), i)) for i in range(num_cells)]
     #p.join()
