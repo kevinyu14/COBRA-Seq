@@ -29,7 +29,7 @@ def optimize_for_gene(name, cell_num):
 
 
 # read in scRNAseq data set
-data = pd.read_csv('trunc_data.csv', index_col=0)
+data = pd.read_csv('GSE115469_Data.csv', index_col=0)
 # gene names should be the 0th column, which is the index column
 genes_in_sc = data.index
 # read in the map from gene name -> model name
@@ -92,7 +92,7 @@ fig, axs = plt.subplots(10, 10)
 # plot all the results
 for i in range(len(results_T)):
     for j in range(len(results_T)):
-        #print(results_T[i])
+        # print(results_T[i])
         axs[i, j].scatter(results_T[i], results_T[j])
         axs[i, j].set_xlabel(dimnames[j])
         axs[i, j].set_ylabel(dimnames[i])
