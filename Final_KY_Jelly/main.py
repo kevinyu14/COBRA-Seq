@@ -87,9 +87,9 @@ dimnames = df.index.values
 # convert the results back into a numpy array so that plotting is easer.
 results_T = np.array(df.values.tolist())
 np.savetxt('results.txt.gz', results_T)
-dimf = open('dimensions_of_results.txt.gz', 'w')
+dimf = open('dimensions_of_results.txt', 'w')
 for i in dimnames:
-    dimf.write(i)
+    dimf.write(i + ';')
 dimf.close()
 print('plotting')
 # subtract the mode to deal with FBA values that are uninteresting
