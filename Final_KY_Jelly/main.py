@@ -54,10 +54,10 @@ print('starting models')
 # multiprocessing w/ 3 threads
 p = mp.Pool(3)
 # do FBA on the first 10 genes to make it faster for now
-for num in range(len(gene_matches[:10])):
+for num in range(len(gene_matches)):
     print('starting async')
     # do it on the first 1000 genes that match so its faster
-    for i in range(len(list(data.loc[gene_matches[0]][:1000]))):
+    for i in range(len(list(data.loc[gene_matches[0]]))):
         # helps to check which threads are running atm
         print("gene #: %d cell #: %d" % (num, i))
         print('starting async')
@@ -80,18 +80,20 @@ df.sort_values(by=[0, 1])
 df = df.pivot(index=0, columns=1, values=2)
 # the dimnames should match the unique values of column 0 (gene names)
 dimnames = df.index.values
+dimnames = np.array(dimnames)
 # convert the results back into a numpy array so that plotting is easer.
 results_T = np.array(df.values.tolist())
-
+np.savetxt('results.txt.gz', results_T)
+np.savetxt('dimensions_of_results.txt.gz', dimnames)
 print('plotting')
 # subtract the mode to deal with FBA values that are uninteresting
 for i in range(len(results_T)):
     results_T[i] -= np.ones(len(results_T[i])) * scipy.stats.mode(results_T[i])[0]
 # set up 100 plots to plot pairwise gene results
-fig, axs = plt.subplots(10, 10)
+fig, axs = plt.subplots(len(gene_matches[:10]), len(gene_matches[:10]))
 # plot all the results
-for i in range(len(results_T)):
-    for j in range(len(results_T)):
+for i in range(len(results_T[:10])):
+    for j in range(len(results_T[:10])):
         # print(results_T[i])
         axs[i, j].scatter(results_T[i], results_T[j])
         axs[i, j].set_xlabel(dimnames[j])
