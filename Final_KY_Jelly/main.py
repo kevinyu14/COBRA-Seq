@@ -4,6 +4,7 @@ import pandas as pd
 import scipy.stats
 import numpy as np
 import multiprocessing as mp
+import random
 
 # import model
 modelOriginal = cobra.io.load_matlab_model('Recon3D.mat')
@@ -51,13 +52,16 @@ results = []
 # prepare a list to make plotting axes easier
 dimnames = []
 print('starting models')
+# generate 50 random numbers to select 50 random cells to observe
+cell_nums = random.sample(range(len(list(data.loc[gene_matches[0]]))), 50)
+gene_nums = random.sample(range(len(gene_matches)), 10)
 # multiprocessing w/ 3 threads
 p = mp.Pool(3)
 # do FBA on the first 10 genes to make it faster for now
-for num in range(len(gene_matches)):
+for num in gene_nums:
     print('starting async')
-    # do it on the first 1000 genes that match so its faster
-    for i in range(len(list(data.loc[gene_matches[0]]))):
+    # do it on 50 random cells that match so its faster
+    for i in cell_nums:
         # helps to check which threads are running atm
         print("gene #: %d cell #: %d" % (num, i))
         print('starting async')
