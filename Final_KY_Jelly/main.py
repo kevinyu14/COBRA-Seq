@@ -61,7 +61,7 @@ p = mp.Pool(3)
 for num in range(len(gene_matches[:10])):
     print('starting async')
     # do it on 50 random cells that match so its faster
-    for i in range(len(data.loc[gene_matches[0][:750]])):
+    for i in range(len(data.loc[gene_matches[0]][:750])):
         # helps to check which threads are running atm
         print("gene #: %d cell #: %d" % (num, i))
         print('starting async')
