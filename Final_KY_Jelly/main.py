@@ -53,15 +53,15 @@ results = []
 dimnames = []
 print('starting models')
 # generate 50 random numbers to select 50 random cells to observe
-cell_nums = random.sample(range(len(list(data.loc[gene_matches[0]]))), 50)
-gene_nums = random.sample(range(len(gene_matches)), 10)
+# cell_nums = random.sample(range(len(list(data.loc[gene_matches[0]]))), 750)
+# gene_nums = random.sample(range(len(gene_matches)), 10)
 # multiprocessing w/ 3 threads
 p = mp.Pool(3)
 # do FBA on the first 10 genes to make it faster for now
-for num in gene_nums:
+for num in range(len(gene_matches[:10])):
     print('starting async')
     # do it on 50 random cells that match so its faster
-    for i in cell_nums:
+    for i in range(len(data.loc[gene_matches[0][:750]])):
         # helps to check which threads are running atm
         print("gene #: %d cell #: %d" % (num, i))
         print('starting async')
