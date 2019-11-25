@@ -80,11 +80,13 @@ df.sort_values(by=[0, 1])
 df = df.pivot(index=0, columns=1, values=2)
 # the dimnames should match the unique values of column 0 (gene names)
 dimnames = df.index.values
-dimnames = np.array(dimnames)
 # convert the results back into a numpy array so that plotting is easer.
 results_T = np.array(df.values.tolist())
 np.savetxt('results.txt.gz', results_T)
-np.savetxt('dimensions_of_results.txt.gz', dimnames)
+dimf = open('dimensions_of_results.txt.gz', 'w')
+for i in dimnames:
+    dimf.write(i)
+dimf.close()
 print('plotting')
 # subtract the mode to deal with FBA values that are uninteresting
 for i in range(len(results_T)):
