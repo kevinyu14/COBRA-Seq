@@ -68,13 +68,12 @@ p = mp.Pool(3)
 for num in range(len(gene_matches[:gn])):
     print('starting async')
     # do it on 50 random cells that match so its faster
-    unique_cells = np.unique(data.loc[gene_matches[num]][:cn])
+    unique_cells, ucind = np.unique(data.loc[gene_matches[num]][:cn], return_inverse=True)
     for i in range(len(unique_cells)):
         # helps to check which threads are running atm
         print("gene #: %d cell #: %d" % (num, i))
         print('starting async')
-        cell_locs = [index for index in range(len(data.loc[gene_matches[num]][:cn]))
-                     if data.loc[gene_matches[num]][index] == unique_cells[i]]
+        cell_locs = [index for index in range(len(ucind)) if ucind[index] == i]
         # put the ApplyResult object in a list
         temp_result = p.apply_async(optimize_for_gene, args=(gene_matches[num], i))
         for ind in cell_locs:
@@ -102,8 +101,10 @@ for i in range(gn):
     dimnames.append(df.iloc[i][0][0])
 # convert the results back into a numpy array so that plotting is easer.
 results_T = np.array(df.applymap(lambda x: x[1]))
-np.savetxt('results.txt.gz', results_T)
-dimf = open('dimensions_of_results.txt', 'w')
+filename = 'results'+str(gn)+'genes'+str(cn)+'cells'+'.txt.gz'
+dimfilename = 'dimensions_of_results'+str(gn)+'genes'+str(cn)+'cells'+'.txt'
+np.savetxt(filename, results_T)
+dimf = open(dimfilename, 'w')
 for i in dimnames:
     dimf.write(i + ';')
 dimf.close()
