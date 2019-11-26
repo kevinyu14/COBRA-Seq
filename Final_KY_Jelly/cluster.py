@@ -2,6 +2,10 @@ import scipy.cluster.vq as vq
 import scipy.stats
 import numpy as np
 import matplotlib.pyplot as plt
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+
+
+# modifiable settings: cluster #, PC #
 
 
 # load the data
@@ -28,18 +32,25 @@ for i in range(6):
     tempin = np.where(tdata[:, 0] == i)
     if len(tempin) != 0:
         hlinepos.append(tempin[0][0])
-        # print(tempin[0][0])
 # remove the cluster assignments from the data
 k_means_sorted = tdata[:, 1:]
+# make plots
+fig, axs = plt.subplots(1, 3)
 # plot it
-#plt.imshow(k_means_sorted, cmap='bwr', aspect='auto', vmin=-.01, vmax=.01)
-#cbar = plt.colorbar()
+im = axs[2].imshow(k_means_sorted, cmap='bwr', aspect='auto', vmin=-.01, vmax=.01)
+divider = make_axes_locatable(axs[2])
+cax = divider.append_axes('right', size='5%', pad=0.05)
+fig.colorbar(im, cax=cax, orientation='vertical', label='Log Fold-Change')
 # make the gene names the x axis labels
-#plt.xticks(range(0, len(dimnames[:-1])), dimnames[:-1], rotation=45)
+axs[2].set_xticks(range(0, len(dimnames[:-1])))
+axs[2].set_xticklabels(dimnames[:-1])
+plt.setp(axs[2].xaxis.get_majorticklabels(), rotation=45)
+axs[2].set_ylabel('Cells')
+axs[2].set_title('Histogram')
 print(len(hlinepos))
-#for i in range(6):
-    # print(hlinepos[i])
-#    plt.axhline(hlinepos[i], color="black")
+for i in range(6):
+    print(hlinepos[i])
+    axs[2].axhline(hlinepos[i], color="black")
 
 submean = data - np.mean(data, 1).reshape((data.shape[0], 1))
 submean = submean.T
@@ -49,7 +60,10 @@ idx = np.flip(np.argsort(W))
 V = V[:, idx]
 W = W[idx]
 evr = W/np.sum(W)
-#plt.bar(range(10), evr)
+axs[1].bar(range(10), evr)
+axs[1].set_xlabel('Principal Component #')
+axs[1].set_ylabel('Variance')
+axs[1].set_title('Explained Variance')
 R = np.matmul(submean.T, V[:, 0:2]).T
 cluster = list(l)
 R0 = np.matrix(R[0,:])
@@ -57,18 +71,20 @@ R1 = np.matrix(R[1,:])
 pC_t = np.vstack((R0, R1)).T
 print(pC_t)
 targets = [0, 1, 2, 3, 4, 5]
-colors = ['r', 'g', 'b', 'y', 'c', 'm']
+#colors = ['r', 'g', 'b', 'y', 'c', 'm']
 count = 1
-for target, color in zip(targets,colors):
+for target in targets:
+    color = "C"+str(targets[target])
     indices = [i for i in range(len(cluster)) if cluster[i] == target]
     print(pC_t[2])
     print(indices)
-    x = [pC_t[i,0] for i in indices]
-    y = [pC_t[i,1] for i in indices]
+    x = [pC_t[i, 0] for i in indices]
+    y = [pC_t[i, 1] for i in indices]
     print(x, y)
-    plt.scatter(x, y, c=color, s=50)
+    axs[0].scatter(x, y, c=color, s=50)
     count += 1
-plt.xlabel('PC1')
-plt.ylabel('PC2')
-plt.title('PCA via Eigen')
+axs[0].set_xlabel('PC1')
+axs[0].set_ylabel('PC2')
+axs[0].set_title('PCA via Eigen')
 plt.show()
+fig.tight_layout()
