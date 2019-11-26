@@ -15,6 +15,14 @@ gn = 20
 
 # import model
 modelOriginal = cobra.io.load_matlab_model('Recon3D.mat')
+rxnName = 'atp_drain'
+met_name = 'atp_c'
+stoich = [-1]
+tempRxn = cobra.Reaction(rxnName)
+tempDrainMetDict = {modelOriginal.metabolites.get_by_id(met_name): s for name, s in zip(met_name, stoich)}
+tempRxn.add_metabolites(tempDrainMetDict)
+modelOriginal.add_reaction(tempRxn)
+modelOriginal.objective = rxnName
 
 
 def optimize_for_gene(name, expression):

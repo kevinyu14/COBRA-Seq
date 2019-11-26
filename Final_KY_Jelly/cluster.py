@@ -10,9 +10,9 @@ from matplotlib.colors import LogNorm
 clusternum = 5
 
 # load the data
-data = np.loadtxt('results.txt')
+data = np.loadtxt('results20genes1500cells.txt.gz')
 # collect the names of genes
-dimf = open('dimensions_of_results.txt', 'r')
+dimf = open('dimensions_of_results20genes1500cells.txt', 'r')
 dimnames = dimf.readlines()
 # gene names are separated by ;s
 dimnames = dimnames[0].split(';')
