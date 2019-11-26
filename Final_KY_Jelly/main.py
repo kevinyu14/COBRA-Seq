@@ -6,7 +6,6 @@ import numpy as np
 import multiprocessing as mp
 import time
 
-
 start_time = time.time()
 
 # modifiable variables: num of cells and genes to FBA
