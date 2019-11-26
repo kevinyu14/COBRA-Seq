@@ -71,7 +71,6 @@ R1 = np.matrix(R[1,:])
 pC_t = np.vstack((R0, R1)).T
 print(pC_t)
 targets = [0, 1, 2, 3, 4, 5]
-#colors = ['r', 'g', 'b', 'y', 'c', 'm']
 count = 1
 for target in targets:
     color = "C"+str(targets[target])
