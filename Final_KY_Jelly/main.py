@@ -6,6 +6,10 @@ import numpy as np
 import multiprocessing as mp
 import random
 
+# modifiable variables: cell #, gene #
+cn = 750
+gn = 10
+
 # import model
 modelOriginal = cobra.io.load_matlab_model('Recon3D.mat')
 
@@ -58,10 +62,10 @@ print('starting models')
 # multiprocessing w/ 3 threads
 p = mp.Pool(3)
 # do FBA on the first 10 genes to make it faster for now
-for num in range(len(gene_matches[:10])):
+for num in range(len(gene_matches[:gn])):
     print('starting async')
     # do it on 50 random cells that match so its faster
-    for i in range(len(data.loc[gene_matches[0]][:750])):
+    for i in range(len(data.loc[gene_matches[0]][:cn])):
         # helps to check which threads are running atm
         print("gene #: %d cell #: %d" % (num, i))
         print('starting async')
@@ -96,10 +100,10 @@ print('plotting')
 for i in range(len(results_T)):
     results_T[i] -= np.ones(len(results_T[i])) * scipy.stats.mode(results_T[i])[0]
 # set up 100 plots to plot pairwise gene results
-fig, axs = plt.subplots(len(gene_matches[:10]), len(gene_matches[:10]))
+fig, axs = plt.subplots(len(gene_matches[:gn]), len(gene_matches[:gn]))
 # plot all the results
-for i in range(len(results_T[:10])):
-    for j in range(len(results_T[:10])):
+for i in range(len(results_T[:gn])):
+    for j in range(len(results_T[:gn])):
         # print(results_T[i])
         axs[i, j].scatter(results_T[i], results_T[j])
         axs[i, j].set_xlabel(dimnames[j])
