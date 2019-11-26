@@ -3,10 +3,11 @@ import scipy.stats
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
+from matplotlib.colors import LogNorm
 
 
 # modifiable settings: cluster #, PC #
-
+clusternum = 5
 
 # load the data
 data = np.loadtxt('results.txt')
@@ -16,11 +17,13 @@ dimnames = dimf.readlines()
 # gene names are separated by ;s
 dimnames = dimnames[0].split(';')
 # make this so that cell nums are on the rows to cluster cells
+data = data - np.min(data)
+data = data + 1
 for i in range(len(data)):
-    data[i] = np.log(data[i]) - np.log(np.ones(len(data[i])) * scipy.stats.mode(data[i])[0])
+    data[i] = np.log10(data[i]) - np.log10(np.ones(len(data[i])) * scipy.stats.mode(data[i])[0])
 data = data.T
 # cluster with kmeans to make 12 clusters
-cen, l = vq.kmeans2(data, k=6, minit='points')
+cen, l = vq.kmeans2(data, k=clusternum, minit='points')
 # convert the cluster assignments to usable form
 l = np.array(l)
 l = l[:, np.newaxis]
@@ -28,7 +31,7 @@ l = l[:, np.newaxis]
 tdata= np.concatenate((l, data), 1)
 tdata = tdata[tdata[:, 0].argsort()]
 hlinepos = []
-for i in range(6):
+for i in range(clusternum):
     tempin = np.where(tdata[:, 0] == i)
     if len(tempin) != 0:
         hlinepos.append(tempin[0][0])
@@ -37,7 +40,7 @@ k_means_sorted = tdata[:, 1:]
 # make plots
 fig, axs = plt.subplots(1, 3)
 # plot it
-im = axs[2].imshow(k_means_sorted, cmap='bwr', aspect='auto', vmin=-.01, vmax=.01)
+im = axs[2].imshow(k_means_sorted, cmap='bwr', aspect='auto', vmin=-.00001, vmax=.00001)
 divider = make_axes_locatable(axs[2])
 cax = divider.append_axes('right', size='5%', pad=0.05)
 fig.colorbar(im, cax=cax, orientation='vertical', label='Log Fold-Change')
@@ -47,8 +50,7 @@ axs[2].set_xticklabels(dimnames[:-1])
 plt.setp(axs[2].xaxis.get_majorticklabels(), rotation=45)
 axs[2].set_ylabel('Cells')
 axs[2].set_title('Histogram')
-print(len(hlinepos))
-for i in range(6):
+for i in range(clusternum):
     print(hlinepos[i])
     axs[2].axhline(hlinepos[i], color="black")
 
@@ -60,7 +62,7 @@ idx = np.flip(np.argsort(W))
 V = V[:, idx]
 W = W[idx]
 evr = W/np.sum(W)
-axs[1].bar(range(10), evr)
+axs[1].bar(range(len(evr)), evr)
 axs[1].set_xlabel('Principal Component #')
 axs[1].set_ylabel('Variance')
 axs[1].set_title('Explained Variance')
@@ -70,16 +72,13 @@ R0 = np.matrix(R[0,:])
 R1 = np.matrix(R[1,:])
 pC_t = np.vstack((R0, R1)).T
 print(pC_t)
-targets = [0, 1, 2, 3, 4, 5]
+targets = range(clusternum)
 count = 1
 for target in targets:
     color = "C"+str(targets[target])
     indices = [i for i in range(len(cluster)) if cluster[i] == target]
-    print(pC_t[2])
-    print(indices)
     x = [pC_t[i, 0] for i in indices]
     y = [pC_t[i, 1] for i in indices]
-    print(x, y)
     axs[0].scatter(x, y, c=color, s=50)
     count += 1
 axs[0].set_xlabel('PC1')

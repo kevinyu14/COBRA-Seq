@@ -4,26 +4,26 @@ import pandas as pd
 import scipy.stats
 import numpy as np
 import multiprocessing as mp
+from operator import itemgetter
 import time
-
 
 start_time = time.time()
 
 # modifiable variables: cell #, gene #
-cn = 750
-gn = 10
+cn = 1500
+gn = 20
 
 # import model
 modelOriginal = cobra.io.load_matlab_model('Recon3D.mat')
 
 
-def optimize_for_gene(name, cell_num):
+def optimize_for_gene(name, expression):
     # return flux balance analysis result for a particular gene and cell #
     print('model start')
     global modelOriginal
     with modelOriginal as model:
         # get expression data from the scRNAseq data set
-        expression = data.loc[name][cell_num]
+        # expression = data.loc[name][cell_num]
         # retrieve the reaction for the gene
         reactions = model.genes.get_by_id(gene_info[name]).reactions
         # change bounds for all reactions associated with the gene
@@ -33,7 +33,7 @@ def optimize_for_gene(name, cell_num):
         fbas = model.optimize('maximize')
         # return gene name, cell #, and objective value so that we can recover
         # results from multiprocessing
-        return [name, cell_num, fbas.objective_value]
+        return [name, fbas.objective_value]
 
 
 # read in scRNAseq data set
@@ -68,31 +68,40 @@ p = mp.Pool(3)
 for num in range(len(gene_matches[:gn])):
     print('starting async')
     # do it on 50 random cells that match so its faster
-    for i in range(len(data.loc[gene_matches[0]][:cn])):
+    unique_cells = np.unique(data.loc[gene_matches[num]][:cn])
+    for i in range(len(unique_cells)):
         # helps to check which threads are running atm
         print("gene #: %d cell #: %d" % (num, i))
         print('starting async')
+        cell_locs = [index for index in range(len(data.loc[gene_matches[num]][:cn]))
+                     if data.loc[gene_matches[num]][index] == unique_cells[i]]
         # put the ApplyResult object in a list
-        results.append(p.apply_async(optimize_for_gene, args=(gene_matches[num], i)))
+        temp_result = p.apply_async(optimize_for_gene, args=(gene_matches[num], i))
+        for ind in cell_locs:
+            results.append([temp_result, num, ind])
 # we're not using these threads anymore so we can move on
 p.close()
 # wait for all the threads to finish before we start converting results to
 # a usable form
 p.join()
 # fetch the results of the ApplyResult object for the entire list
-results_fetched = [i.get() for i in results]
+results_pd = pd.DataFrame.from_records(results)
+results_pd = results_pd.sort_values([1, 2])
+
+results_fetched = [[results_pd.loc[i][0].get(), results_pd.loc[i][1], results_pd.loc[i][2]] for i in range(gn*cn)]
 # make it a pandas data frame so its easier to transform
 df = pd.DataFrame.from_records(results_fetched)
 # sort by the gene name first, then by the cell number within the gene name
-df.sort_values(by=[0, 1])
+df.sort_values(by=[1, 2])
 # pivot converts a 1x10,0000 list to a 10x1,000 array with rownames that match
 # unique values of column 0, and column names that match unique values of column 1
 # and values that match column 2
-df = df.pivot(index=0, columns=1, values=2)
+df = df.pivot(index=1, columns=2, values=0)
 # the dimnames should match the unique values of column 0 (gene names)
-dimnames = df.index.values
+for i in range(gn):
+    dimnames.append(df.iloc[i][0][0])
 # convert the results back into a numpy array so that plotting is easer.
-results_T = np.array(df.values.tolist())
+results_T = np.array(df.applymap(lambda x: x[1]))
 np.savetxt('results.txt.gz', results_T)
 dimf = open('dimensions_of_results.txt', 'w')
 for i in dimnames:
