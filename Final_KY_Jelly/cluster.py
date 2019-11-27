@@ -40,14 +40,14 @@ k_means_sorted = tdata[:, 1:]
 # make plots
 fig, axs = plt.subplots(1, 3)
 # plot it
-im = axs[2].imshow(k_means_sorted, cmap='bwr', aspect='auto', vmin=-.00001, vmax=.00001)
+im = axs[2].imshow(k_means_sorted, cmap='bwr', aspect='auto', vmin=-.001, vmax=.001)
 divider = make_axes_locatable(axs[2])
 cax = divider.append_axes('right', size='5%', pad=0.05)
 fig.colorbar(im, cax=cax, orientation='vertical', label='Log Fold-Change')
 # make the gene names the x axis labels
 axs[2].set_xticks(range(0, len(dimnames[:-1])))
 axs[2].set_xticklabels(dimnames[:-1])
-plt.setp(axs[2].xaxis.get_majorticklabels(), rotation=45)
+plt.setp(axs[2].xaxis.get_majorticklabels(), rotation=80, fontsize=5)
 axs[2].set_ylabel('Cells')
 axs[2].set_title('Histogram')
 for i in range(clusternum):
