@@ -10,8 +10,8 @@ import time
 start_time = time.time()
 
 # modifiable variables: cell #, gene #
-cn = 1500
-gn = 20
+cn = 2000
+gn = 80
 
 # import model
 modelOriginal = cobra.io.load_matlab_model('Recon3D.mat')
