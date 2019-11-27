@@ -14,7 +14,7 @@ cells = 2000
 genes = 80
 threads = 3
 
-# import model
+# import model and make objective atp_c
 modelOriginal = cobra.io.load_matlab_model('Recon3D.mat')
 rxnName = 'atp_drain'
 met_name = 'atp_c'
@@ -76,15 +76,17 @@ p = mp.Pool(threads)
 # do FBA on the first 10 genes to make it faster for now
 for num in range(len(gene_matches[:genes])):
     print('starting async')
-    # do it on 50 random cells that match so its faster
+    # find unique expression levels
     unique_cells, ucind = np.unique(data.loc[gene_matches[num]][:cells], return_inverse=True)
     for i in range(len(unique_cells)):
         # helps to check which threads are running atm
         print("gene #: %d cell #: %d" % (num, i))
         print('starting async')
+        # find the place where the unique expression levels are
         cell_locs = [index for index in range(len(ucind)) if ucind[index] == i]
         # put the ApplyResult object in a list
         temp_result = p.apply_async(optimize_for_gene, args=(gene_matches[num], i))
+        # record instances of unique expression level results
         for ind in cell_locs:
             results.append([temp_result, num, ind])
 # we're not using these threads anymore so we can move on
@@ -93,9 +95,11 @@ p.close()
 # a usable form
 p.join()
 # fetch the results of the ApplyResult object for the entire list
+# make the ApplyResults into aa pandas dataframe to make it easier to sort
 results_pd = pd.DataFrame.from_records(results)
+# sort by gene # and cell # within gene #
 results_pd = results_pd.sort_values([1, 2])
-
+# get the result
 results_fetched = [[results_pd.loc[i][0].get(), results_pd.loc[i][1], results_pd.loc[i][2]] for i in range(genes * cells)]
 # make it a pandas data frame so its easier to transform
 df = pd.DataFrame.from_records(results_fetched)
