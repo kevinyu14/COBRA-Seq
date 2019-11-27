@@ -10,8 +10,9 @@ import time
 start_time = time.time()
 
 # modifiable variables: cell #, gene #
-cn = 2000
-gn = 80
+cells = 2000
+genes = 80
+threads = 3
 
 # import model
 modelOriginal = cobra.io.load_matlab_model('Recon3D.mat')
@@ -71,12 +72,12 @@ print('starting models')
 # cell_nums = random.sample(range(len(list(data.loc[gene_matches[0]]))), 750)
 # gene_nums = random.sample(range(len(gene_matches)), 10)
 # multiprocessing w/ 3 threads
-p = mp.Pool(3)
+p = mp.Pool(threads)
 # do FBA on the first 10 genes to make it faster for now
-for num in range(len(gene_matches[:gn])):
+for num in range(len(gene_matches[:genes])):
     print('starting async')
     # do it on 50 random cells that match so its faster
-    unique_cells, ucind = np.unique(data.loc[gene_matches[num]][:cn], return_inverse=True)
+    unique_cells, ucind = np.unique(data.loc[gene_matches[num]][:cells], return_inverse=True)
     for i in range(len(unique_cells)):
         # helps to check which threads are running atm
         print("gene #: %d cell #: %d" % (num, i))
@@ -95,7 +96,7 @@ p.join()
 results_pd = pd.DataFrame.from_records(results)
 results_pd = results_pd.sort_values([1, 2])
 
-results_fetched = [[results_pd.loc[i][0].get(), results_pd.loc[i][1], results_pd.loc[i][2]] for i in range(gn*cn)]
+results_fetched = [[results_pd.loc[i][0].get(), results_pd.loc[i][1], results_pd.loc[i][2]] for i in range(genes * cells)]
 # make it a pandas data frame so its easier to transform
 df = pd.DataFrame.from_records(results_fetched)
 # sort by the gene name first, then by the cell number within the gene name
@@ -105,12 +106,12 @@ df.sort_values(by=[1, 2])
 # and values that match column 2
 df = df.pivot(index=1, columns=2, values=0)
 # the dimnames should match the unique values of column 0 (gene names)
-for i in range(gn):
+for i in range(genes):
     dimnames.append(df.iloc[i][0][0])
 # convert the results back into a numpy array so that plotting is easer.
 results_T = np.array(df.applymap(lambda x: x[1]))
-filename = 'results'+str(gn)+'genes'+str(cn)+'cells'+'.txt.gz'
-dimfilename = 'dimensions_of_results'+str(gn)+'genes'+str(cn)+'cells'+'.txt'
+filename = 'results' + str(genes) + 'genes' + str(cells) + 'cells' + '.txt.gz'
+dimfilename = 'dimensions_of_results' + str(genes) + 'genes' + str(cells) + 'cells' + '.txt'
 np.savetxt(filename, results_T)
 dimf = open(dimfilename, 'w')
 for i in dimnames:
@@ -121,10 +122,10 @@ print('plotting')
 for i in range(len(results_T)):
     results_T[i] -= np.ones(len(results_T[i])) * scipy.stats.mode(results_T[i])[0]
 # set up 100 plots to plot pairwise gene results
-fig, axs = plt.subplots(len(gene_matches[:gn]), len(gene_matches[:gn]))
+fig, axs = plt.subplots(len(gene_matches[:genes]), len(gene_matches[:genes]))
 # plot all the results
-for i in range(len(results_T[:gn])):
-    for j in range(len(results_T[:gn])):
+for i in range(len(results_T[:genes])):
+    for j in range(len(results_T[:genes])):
         # print(results_T[i])
         axs[i, j].scatter(results_T[i], results_T[j])
         axs[i, j].set_xlabel(dimnames[j])
