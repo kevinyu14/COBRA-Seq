@@ -11,7 +11,7 @@ start_time = time.time()
 
 # modifiable variables: cell #, gene #
 cells = 2000
-genes = 80
+genes = 300
 threads = 3
 
 # import model and make objective atp_c
@@ -78,6 +78,10 @@ for num in range(len(gene_matches[:genes])):
     print('starting async')
     # find unique expression levels
     unique_cells, ucind = np.unique(data.loc[gene_matches[num]][:cells], return_inverse=True)
+    if len(unique_cells) < .4*cells:
+        print('skipping gene %i' %(num))
+        genes -= 1
+        continue
     for i in range(len(unique_cells)):
         # helps to check which threads are running atm
         print("gene #: %d cell #: %d" % (num, i))
