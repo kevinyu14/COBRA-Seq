@@ -11,8 +11,9 @@ start_time = time.time()
 
 # modifiable variables: cell #, gene #
 cells = 2000
-genes = 300
+genes = 50000
 threads = 3
+plot = False
 
 # import model and make objective atp_c
 modelOriginal = cobra.io.load_matlab_model('Recon3D.mat')
@@ -78,9 +79,8 @@ for num in range(len(gene_matches[:genes])):
     print('starting async')
     # find unique expression levels
     unique_cells, ucind = np.unique(data.loc[gene_matches[num]][:cells], return_inverse=True)
-    if len(unique_cells) < .4*cells:
+    if len(unique_cells) < .8*cells:
         print('skipping gene %i' %(num))
-        genes -= 1
         continue
     for i in range(len(unique_cells)):
         # helps to check which threads are running atm
@@ -88,7 +88,7 @@ for num in range(len(gene_matches[:genes])):
         print('starting async')
         # find the place where the unique expression levels are
         cell_locs = [index for index in range(len(ucind)) if ucind[index] == i]
-        # put the ApplyResult object in a list
+        # put the ApplyResult object in a l702000ist
         temp_result = p.apply_async(optimize_for_gene, args=(gene_matches[num], i))
         # record instances of unique expression level results
         for ind in cell_locs:
@@ -103,8 +103,10 @@ p.join()
 results_pd = pd.DataFrame.from_records(results)
 # sort by gene # and cell # within gene #
 results_pd = results_pd.sort_values([1, 2])
+results_pd = results_pd.reset_index()
 # get the result
-results_fetched = [[results_pd.loc[i][0].get(), results_pd.loc[i][1], results_pd.loc[i][2]] for i in range(genes * cells)]
+results_fetched = [[results_pd.loc[i][0].get(), results_pd.loc[i][1], results_pd.loc[i][2]]
+                   for i in range(results_pd.shape[0])]
 # make it a pandas data frame so its easier to transform
 df = pd.DataFrame.from_records(results_fetched)
 # sort by the gene name first, then by the cell number within the gene name
@@ -114,29 +116,30 @@ df.sort_values(by=[1, 2])
 # and values that match column 2
 df = df.pivot(index=1, columns=2, values=0)
 # the dimnames should match the unique values of column 0 (gene names)
-for i in range(genes):
+for i in range(int(results_pd.shape[0]/cells)):
     dimnames.append(df.iloc[i][0][0])
 # convert the results back into a numpy array so that plotting is easer.
 results_T = np.array(df.applymap(lambda x: x[1]))
-filename = 'results' + str(genes) + 'genes' + str(cells) + 'cells' + '.txt.gz'
-dimfilename = 'dimensions_of_results' + str(genes) + 'genes' + str(cells) + 'cells' + '.txt'
+filename = 'results' + str(int(results_pd.shape[0]/cells)) + 'genes' + str(cells) + 'cells' + '.txt.gz'
+dimfilename = 'dimensions_of_results' + str(int(results_pd.shape[0]/cells)) + 'genes' + str(cells) + 'cells' + '.txt'
 np.savetxt(filename, results_T)
 dimf = open(dimfilename, 'w')
 for i in dimnames:
     dimf.write(i + ';')
 dimf.close()
-print('plotting')
-# subtract the mode to deal with FBA values that are uninteresting
-for i in range(len(results_T)):
-    results_T[i] -= np.ones(len(results_T[i])) * scipy.stats.mode(results_T[i])[0]
-# set up 100 plots to plot pairwise gene results
-fig, axs = plt.subplots(len(gene_matches[:genes]), len(gene_matches[:genes]))
-# plot all the results
-for i in range(len(results_T[:genes])):
-    for j in range(len(results_T[:genes])):
-        # print(results_T[i])
-        axs[i, j].scatter(results_T[i], results_T[j])
-        axs[i, j].set_xlabel(dimnames[j])
-        axs[i, j].set_ylabel(dimnames[i])
 print(time.time()-start_time)
-plt.show()
+if plot:
+    print('plotting')
+    # subtract the mode to deal with FBA values that are uninteresting
+    for i in range(len(results_T)):
+        results_T[i] -= np.ones(len(results_T[i])) * scipy.stats.mode(results_T[i])[0]
+    # set up 100 plots to plot pairwise gene results
+    fig, axs = plt.subplots(len(gene_matches[:genes]), len(gene_matches[:genes]))
+    # plot all the results
+    for i in range(len(results_T[:genes])):
+        for j in range(len(results_T[:genes])):
+            # print(results_T[i])
+            axs[i, j].scatter(results_T[i], results_T[j])
+            axs[i, j].set_xlabel(dimnames[j])
+            axs[i, j].set_ylabel(dimnames[i])
+    plt.show()
