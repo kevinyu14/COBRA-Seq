@@ -9,15 +9,15 @@ from matplotlib.colors import LogNorm
 
 
 # modifiable settings: cluster #, PC #
-clusternum = 2
+clusternum = 8
 
 # load the data
 data = np.loadtxt('results0.7threshold8444cells.txt.gz')
 # collect the names of genes
 dimf = open('dimensions_of_results0.7threshold8444cells.txt', 'r')
-dimnames = dimf.readlines()
+dimnames = dimf.readline()
 # gene names are separated by ;s
-dimnames = dimnames[0].split(';')
+dimnames = dimnames.split(';')
 # make this so that cell nums are on the rows to cluster cells
 data = data - np.min(data)
 data = data + 1
