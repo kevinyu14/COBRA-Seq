@@ -7,12 +7,12 @@ from matplotlib.colors import LogNorm
 
 
 # modifiable settings: cluster #, PC #
-clusternum = 5
+clusternum = 6
 
 # load the data
-data = np.loadtxt('results5genes3000cells.txt.gz')
+data = np.loadtxt('results0.7threshold8444cells.txt.gz')
 # collect the names of genes
-dimf = open('dimensions_of_results5genes3000cells.txt', 'r')
+dimf = open('dimensions_of_results0.7threshold8444cells.txt', 'r')
 dimnames = dimf.readlines()
 # gene names are separated by ;s
 dimnames = dimnames[0].split(';')

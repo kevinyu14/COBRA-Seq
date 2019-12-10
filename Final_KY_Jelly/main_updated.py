@@ -12,7 +12,7 @@ start_time = time.time()
 # modifiable variables: cell # (max 8444), gene # (max 1800), threshold is % unique cells
 cells = 8444
 genes = 1800
-threshold = .875
+threshold = .7
 threads = 3
 plot = False
 
