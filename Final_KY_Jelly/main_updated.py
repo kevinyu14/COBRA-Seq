@@ -17,6 +17,7 @@ threads = 3
 plot = False
 
 # import model and make objective atp_c
+# ALCD2X, etoh_c 
 modelOriginal = cobra.io.load_matlab_model('Recon3D.mat')
 rxnName = 'atp_drain'
 met_name = 'atp_c'
@@ -87,7 +88,7 @@ for num in range(len(gene_matches)):
         # helps to check which threads are running atm
         print("gene #: %d cell #: %d" % (num, i))
         print('starting async')
-        # find the place where the unique expression levels are
+        # find the place where the unique expression levels are 
         cell_locs = [index for index in range(len(ucind)) if ucind[index] == i]
         # put the ApplyResult object in a l702000ist
         temp_result = p.apply_async(optimize_for_gene, args=(gene_matches[num], i))
@@ -121,8 +122,8 @@ for i in range(int(results_pd.shape[0]/cells)):
     dimnames.append(df.iloc[i][0][0])
 # convert the results back into a numpy array so that plotting is easer.
 results_T = np.array(df.applymap(lambda x: x[1]))
-filename = 'results' + str(threshold) + 'threshold' + str(cells) + 'cells' + '.txt.gz'
-dimfilename = 'dimensions_of_results' + str(threshold) + 'threshold' + str(cells) + 'cells' + '.txt'
+filename = met_name + 'results' + str(threshold) + 'threshold' + str(cells) + 'cells' + '.txt.gz'
+dimfilename = met_name + 'dimensions_of_results' + str(threshold) + 'threshold' + str(cells) + 'cells' + '.txt'
 np.savetxt(filename, results_T)
 dimf = open(dimfilename, 'w')
 for i in dimnames:
