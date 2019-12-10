@@ -9,7 +9,7 @@ from matplotlib.colors import LogNorm
 
 
 # modifiable settings: cluster #, PC #
-clusternum = 8
+clusternum = 2
 
 # load the data
 data = np.loadtxt('results0.7threshold8444cells.txt.gz')
