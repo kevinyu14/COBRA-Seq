@@ -9,9 +9,10 @@ import time
 
 start_time = time.time()
 
-# modifiable variables: cell #, gene #
-cells = 2000
-genes = 50000
+# modifiable variables: cell # (max 8444), gene # (max 1800), threshold is % unique cells
+cells = 8444
+genes = 1800
+threshold = .875
 threads = 3
 plot = False
 
@@ -75,11 +76,11 @@ print('starting models')
 # multiprocessing w/ 3 threads
 p = mp.Pool(threads)
 # do FBA on the first 10 genes to make it faster for now
-for num in range(len(gene_matches[:genes])):
+for num in range(len(gene_matches)):
     print('starting async')
     # find unique expression levels
     unique_cells, ucind = np.unique(data.loc[gene_matches[num]][:cells], return_inverse=True)
-    if len(unique_cells) < .8*cells:
+    if len(unique_cells) < threshold*cells:
         print('skipping gene %i' %(num))
         continue
     for i in range(len(unique_cells)):
@@ -120,8 +121,8 @@ for i in range(int(results_pd.shape[0]/cells)):
     dimnames.append(df.iloc[i][0][0])
 # convert the results back into a numpy array so that plotting is easer.
 results_T = np.array(df.applymap(lambda x: x[1]))
-filename = 'results' + str(int(results_pd.shape[0]/cells)) + 'genes' + str(cells) + 'cells' + '.txt.gz'
-dimfilename = 'dimensions_of_results' + str(int(results_pd.shape[0]/cells)) + 'genes' + str(cells) + 'cells' + '.txt'
+filename = 'results' + str(threshold) + 'threshold' + str(cells) + 'cells' + '.txt.gz'
+dimfilename = 'dimensions_of_results' + str(threshold) + 'threshold' + str(cells) + 'cells' + '.txt'
 np.savetxt(filename, results_T)
 dimf = open(dimfilename, 'w')
 for i in dimnames:

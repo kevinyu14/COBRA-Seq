@@ -7,12 +7,12 @@ from matplotlib.colors import LogNorm
 
 
 # modifiable settings: cluster #, PC #
-clusternum = 6
+clusternum = 5
 
 # load the data
-data = np.loadtxt('results8genes2000cells.txt.gz')
+data = np.loadtxt('results5genes3000cells.txt.gz')
 # collect the names of genes
-dimf = open('dimensions_of_results8genes2000cells.txt', 'r')
+dimf = open('dimensions_of_results5genes3000cells.txt', 'r')
 dimnames = dimf.readlines()
 # gene names are separated by ;s
 dimnames = dimnames[0].split(';')
@@ -40,7 +40,7 @@ k_means_sorted = tdata[:, 1:]
 # make plots
 fig, axs = plt.subplots(1, 3)
 # plot it
-im = axs[2].imshow(k_means_sorted, cmap='bwr', aspect='auto', vmin=k_means_sorted.min(), vmax=-k_means_sorted.min())
+im = axs[2].imshow(k_means_sorted, cmap='bwr', aspect='auto', vmin=-.001, vmax=.001)
 divider = make_axes_locatable(axs[2])
 cax = divider.append_axes('right', size='5%', pad=0.05)
 fig.colorbar(im, cax=cax, orientation='vertical', label='Log Fold-Change')
