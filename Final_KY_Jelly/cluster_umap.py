@@ -3,9 +3,6 @@ import scipy.stats
 import numpy as np
 import umap
 import matplotlib.pyplot as plt
-import seaborn as sns
-from mpl_toolkits.axes_grid1 import make_axes_locatable
-from matplotlib.colors import LogNorm
 
 
 # modifiable settings: cluster #, PC #
@@ -30,6 +27,8 @@ cen, l = vq.kmeans2(data, k=clusternum, minit='points')
 l = np.array(l)
 l = l[:, np.newaxis]
 l = np.transpose(l)
+filename = 'clusters0.7threshold8444cells.txt.gz'
+np.savetxt(filename, l)
 
 reducer = umap.UMAP()
 im = reducer.fit_transform(data)
