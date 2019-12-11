@@ -91,7 +91,7 @@ for num in range(len(gene_matches)):
         # find the place where the unique expression levels are 
         cell_locs = [index for index in range(len(ucind)) if ucind[index] == i]
         # put the ApplyResult object in a l702000ist
-        temp_result = p.apply_async(optimize_for_gene, args=(gene_matches[num], i))
+        temp_result = p.apply_async(optimize_for_gene, args=(gene_matches[num], unique_cells[i]))
         # record instances of unique expression level results
         for ind in cell_locs:
             results.append([temp_result, num, ind])
