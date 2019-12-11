@@ -32,7 +32,9 @@ np.savetxt(filename, l)
 
 reducer = umap.UMAP()
 im = reducer.fit_transform(data)
-c = ['aqua', 'black', 'chartreuse', 'cyan', 'darkgreen', 'fuchsia', 'gold', 'grey', 'indigo', 'ivory', 'orange', 'teal']
+c = ['aqua', 'chartreuse', 'cyan', 'darkgreen', 'fuchsia', 'gold', 'indigo', 'ivory', 'orange', 'teal']
 colors = [c[i] for i in l[0]]
 plt.scatter(im[:, 0], im[:, 1], c=colors)
+plt.xlabel('UMAP1')
+plt.ylabel('UMAP2')
 plt.show()
