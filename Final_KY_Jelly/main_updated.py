@@ -13,11 +13,11 @@ start_time = time.time()
 cells = 8444
 genes = 1800
 threshold = .7
-threads = 3
+threads = mp.cpu_count() - 1
 plot = False
 
 # import model and make objective atp_c
-# ALCD2X, etoh_c 
+# ALCD2X, etoh_c
 modelOriginal = cobra.io.load_matlab_model('Recon3D.mat')
 rxnName = 'atp_drain'
 met_name = 'atp_c'
@@ -90,7 +90,7 @@ for num in range(len(gene_matches)):
         print('starting async')
         # find the place where the unique expression levels are 
         cell_locs = [index for index in range(len(ucind)) if ucind[index] == i]
-        # put the ApplyResult object in a l702000ist
+        # put the ApplyResult object in a list
         temp_result = p.apply_async(optimize_for_gene, args=(gene_matches[num], unique_cells[i]))
         # record instances of unique expression level results
         for ind in cell_locs:
