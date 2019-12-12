@@ -47,41 +47,23 @@ print(gmm.converged_)
 
 # make plots
 
-from matplotlib.patches import Ellipse
+# display predicted scores by the model as a contour plot
+x = np.linspace(-0.5, 0.25)
+y = np.linspace(-0.25, 0.25)
+X, Y = np.meshgrid(x, y)
+XX = np.array([X.ravel(), Y.ravel()]).T
+Z = -gmm.score_samples(XX)
+Z = Z.reshape(X.shape)
 
+CS = plt.contour(X, Y, Z, norm=LogNorm(vmin=1.0, vmax=1000.0),
+                 levels=np.logspace(0, 3, 10))
+CB = plt.colorbar(CS, shrink=0.8, extend='both')
+pct0 = np.array([])
+pct1 = np.array([])
+for i in range(len(pC_t)):
+    pct0 = np.append(pct0, pC_t[i,0])
+    pct1 = np.append(pct1, pC_t[i,1])
 
-def draw_ellipse(position, covariance, ax=None, **kwargs):
-    """Draw an ellipse with a given position and covariance"""
-    ax = ax or plt.gca()
-
-    # Convert covariance to principal axes
-    if covariance.shape == (2, 2):
-        U, s, Vt = np.linalg.svd(covariance)
-        angle = np.degrees(np.arctan2(U[1, 0], U[0, 0]))
-        width, height = 2 * np.sqrt(s)
-    else:
-        angle = 0
-        width, height = 2 * np.sqrt(covariance)
-
-    # Draw the Ellipse
-    for nsig in range(1, 4):
-        ax.add_patch(Ellipse(position, nsig * width, nsig * height,
-                             angle, **kwargs))
-
-
-def plot_gmm(gmm, X, label=True, ax=None):
-    ax = ax or plt.gca()
-    labels = gmm.fit(X).predict(X)
-    if label:
-        ax.scatter(X[:, 0], X[:, 1], c=labels, s=40, cmap='viridis', zorder=2)
-    else:
-        ax.scatter(X[:, 0], X[:, 1], s=40, zorder=2)
-    ax.axis('equal')
-
-    w_factor = 0.2 / gmm.weights_.max()
-    for pos, covar, w in zip(gmm.means_, gmm.covariances_, gmm.weights_):
-        draw_ellipse(pos, covar, alpha=w * w_factor)
-
-
-gmm = GaussianMixture(n_components=8, random_state=42)
-plot_gmm(gmm, pC_t)
+plt.xlim(-0.5,0.1)
+plt.scatter(pct0, pct1, .8)
+plt.show()
