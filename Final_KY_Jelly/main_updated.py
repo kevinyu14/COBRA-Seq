@@ -10,7 +10,7 @@ import time
 start_time = time.time()
 
 # modifiable variables: cell # (max 8444), gene # (max 1800), threshold is % unique cells
-cells = 8444
+cells = 2000
 genes = 1800
 threshold = .7
 threads = mp.cpu_count() - 1
@@ -27,7 +27,6 @@ tempDrainMetDict = {modelOriginal.metabolites.get_by_id(met_name): s for name, s
 tempRxn.add_metabolites(tempDrainMetDict)
 modelOriginal.add_reaction(tempRxn)
 modelOriginal.objective = rxnName
-
 
 def optimize_for_gene(name, expression):
     # return flux balance analysis result for a particular gene and cell #
@@ -107,8 +106,10 @@ results_pd = pd.DataFrame.from_records(results)
 results_pd = results_pd.sort_values([1, 2])
 results_pd = results_pd.reset_index()
 # get the result
+print('fetching results')
 results_fetched = [[results_pd.loc[i][0].get(), results_pd.loc[i][1], results_pd.loc[i][2]]
                    for i in range(results_pd.shape[0])]
+print('done')
 # make it a pandas data frame so its easier to transform
 df = pd.DataFrame.from_records(results_fetched)
 # sort by the gene name first, then by the cell number within the gene name
