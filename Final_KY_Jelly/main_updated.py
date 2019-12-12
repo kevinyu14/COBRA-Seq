@@ -40,8 +40,8 @@ def optimize_for_gene(name, expression):
         reactions = model.genes.get_by_id(gene_info[name]).reactions
         # change bounds for all reactions associated with the gene
         for j in reactions:
-            j.lower_bound = expression * 100
-            j.upper_bound = expression * 100
+            j.lower_bound = 2**expression * 100
+            j.upper_bound = 2**expression * 100
         fbas = model.optimize('maximize')
         # return gene name, cell #, and objective value so that we can recover
         # results from multiprocessing

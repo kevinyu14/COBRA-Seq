@@ -7,12 +7,12 @@ from matplotlib.colors import LogNorm
 
 
 # modifiable settings: cluster #, PC #
-clusternum = 6
+clusternum = 1
 
 # load the data
-data = np.loadtxt('results0.7threshold8444cells.txt.gz')
+data = np.loadtxt('atp_cresults0.9threshold2000cells.txt.gz')
 # collect the names of genes
-dimf = open('dimensions_of_results0.7threshold8444cells.txt', 'r')
+dimf = open('atp_cdimensions_of_results0.9threshold2000cells.txt', 'r')
 dimnames = dimf.readlines()
 # gene names are separated by ;s
 dimnames = dimnames[0].split(';')
@@ -20,7 +20,7 @@ dimnames = dimnames[0].split(';')
 data = data - np.min(data)
 data = data + 1
 for i in range(len(data)):
-    data[i] = np.log10(data[i]) - np.log10(np.ones(len(data[i])) * scipy.stats.mode(data[i])[0])
+   data[i] = np.log10(data[i]) - np.log10(np.ones(len(data[i])) * scipy.stats.mode(data[i])[0])
 data = data.T
 # cluster with kmeans to make 12 clusters
 cen, l = vq.kmeans2(data, k=clusternum, minit='points')
