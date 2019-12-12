@@ -11,10 +11,10 @@ from sklearn.manifold import TSNE
 # Modifiable settings:
 
 # Load the data
-data = np.loadtxt("results0.7threshold8444cells.txt.gz")
+data = np.loadtxt("atp_cresults0.7thresh`old8444cells.txt.gz")
 
 # Collect the names of genes, which are separate by an ";"
-dimf = open("dimensions_of_results0.7threshold8444cells.txt", "r")
+dimf = open("atp_cdimensions_of_results0.7threshold8444cells.txt", "r")
 dimnames = dimf.readline().split(";")
 
 # Make this so that cell nums are on the rows to cluster cells
