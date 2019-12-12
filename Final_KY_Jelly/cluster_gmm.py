@@ -10,9 +10,9 @@ from sklearn.mixture import GaussianMixture
 clusternum = 1
 
 # load the data
-data = np.loadtxt('atp_cresults0.9threshold2000cells.txt.gz')
+data = np.loadtxt('atp_cresults0.7threshold2000cells.txt.gz')
 # collect the names of genes
-dimf = open('atp_cdimensions_of_results0.9threshold2000cells.txt', 'r')
+dimf = open('atp_cdimensions_of_results0.7threshold2000cells.txt', 'r')
 dimnames = dimf.readlines()
 # gene names are separated by ;s
 dimnames = dimnames[0].split(';')
@@ -48,8 +48,8 @@ print(gmm.converged_)
 # make plots
 
 # display predicted scores by the model as a contour plot
-x = np.linspace(-0.5, 0.25)
-y = np.linspace(-0.25, 0.25)
+x = np.linspace(-4, 0.4)
+y = np.linspace(-4, 0.3)
 X, Y = np.meshgrid(x, y)
 XX = np.array([X.ravel(), Y.ravel()]).T
 Z = -gmm.score_samples(XX)
@@ -64,6 +64,12 @@ for i in range(len(pC_t)):
     pct0 = np.append(pct0, pC_t[i,0])
     pct1 = np.append(pct1, pC_t[i,1])
 
-plt.xlim(-0.5,0.1)
+plt.yscale('symlog')
+plt.xscale('symlog')
+plt.xlim(-3.3,0.4)
+plt.ylim(0,0.3)
 plt.scatter(pct0, pct1, .8)
+
+plt.title('Negative log-likelihood predicted by a GMM')
+plt.axis('tight')
 plt.show()
