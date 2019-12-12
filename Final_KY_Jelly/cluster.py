@@ -7,12 +7,12 @@ from matplotlib.colors import LogNorm
 
 
 # modifiable settings: cluster #, PC #
-clusternum = 1
+clusternum = 3
 
 # load the data
-data = np.loadtxt('atp_cresults0.9threshold2000cells.txt.gz')
+data = np.loadtxt('atp_cresults0.7threshold2000cells.txt.gz')
 # collect the names of genes
-dimf = open('atp_cdimensions_of_results0.9threshold2000cells.txt', 'r')
+dimf = open('atp_cdimensions_of_results0.7threshold2000cells.txt', 'r')
 dimnames = dimf.readlines()
 # gene names are separated by ;s
 dimnames = dimnames[0].split(';')
@@ -22,8 +22,9 @@ data = data + 1
 for i in range(len(data)):
    data[i] = np.log10(data[i]) - np.log10(np.ones(len(data[i])) * scipy.stats.mode(data[i])[0])
 data = data.T
+# data = vq.whiten(data)
 # cluster with kmeans to make 12 clusters
-cen, l = vq.kmeans2(data, k=clusternum, minit='points')
+cen, l = vq.kmeans2(data, k=clusternum, minit='points', iter=200000)
 # convert the cluster assignments to usable form
 l = np.array(l)
 l = l[:, np.newaxis]
@@ -40,7 +41,7 @@ k_means_sorted = tdata[:, 1:]
 # make plots
 fig, axs = plt.subplots(1, 3)
 # plot it
-im = axs[2].imshow(k_means_sorted, cmap='bwr', aspect='auto', vmin=-.001, vmax=.001)
+im = axs[2].imshow(k_means_sorted, cmap='bwr', aspect='auto', vmin=-data.max()/10, vmax=data.max()/10)
 divider = make_axes_locatable(axs[2])
 cax = divider.append_axes('right', size='5%', pad=0.05)
 fig.colorbar(im, cax=cax, orientation='vertical', label='Log Fold-Change')

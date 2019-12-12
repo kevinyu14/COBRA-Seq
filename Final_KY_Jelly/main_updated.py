@@ -15,18 +15,27 @@ genes = 1800
 threshold = .7
 threads = mp.cpu_count() - 1
 plot = False
+atp = False
+etoh = True
+global met_name
 
 # import model and make objective atp_c
 # ALCD2X, etoh_c
 modelOriginal = cobra.io.load_matlab_model('Recon3D.mat')
-rxnName = 'atp_drain'
-met_name = 'atp_c'
-stoich = [-1]
-tempRxn = cobra.Reaction(rxnName)
-tempDrainMetDict = {modelOriginal.metabolites.get_by_id(met_name): s for name, s in zip(met_name, stoich)}
-tempRxn.add_metabolites(tempDrainMetDict)
-modelOriginal.add_reaction(tempRxn)
-modelOriginal.objective = rxnName
+if atp:
+    rxnName = 'atp_drain'
+    met_name = 'atp_c'
+    stoich = [-1]
+    tempRxn = cobra.Reaction(rxnName)
+    tempDrainMetDict = {modelOriginal.metabolites.get_by_id(met_name): s for name, s in zip(met_name, stoich)}
+    tempRxn.add_metabolites(tempDrainMetDict)
+    modelOriginal.add_reaction(tempRxn)
+    modelOriginal.objective = rxnName
+if etoh:
+    met_name = "etoh_"
+    modelOriginal.reactions.get_by_id("ETOHt").lower_bound = 1000
+    modelOriginal.reactions.get_by_id("ETOHt").upper_bound = 1000
+    modelOriginal.objective = "ALCD2x"
 
 def optimize_for_gene(name, expression):
     # return flux balance analysis result for a particular gene and cell #
