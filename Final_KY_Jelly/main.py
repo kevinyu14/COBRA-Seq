@@ -10,7 +10,7 @@ import time
 start_time = time.time()
 
 # modifiable variables: cell # (max 8444), gene # (max 1800), threshold is % unique cells
-cells = 8444
+cells = 2000
 genes = 1800
 threshold = .7
 threads = mp.cpu_count() - 1
@@ -98,7 +98,7 @@ if __name__ == "__main__":
             print('starting async')
             # find the place where the unique expression levels are 
             cell_locs = [index for index in range(len(ucind)) if ucind[index] == i]
-            cell_locs = np.where(ucind == i)
+            # cell_locs = np.where(ucind == i)
             # put the ApplyResult object in a list
             temp_result = p.apply_async(optimize_for_gene, args=(gene_matches[num], unique_cells[i]))
             # record instances of unique expression level results

@@ -7,7 +7,7 @@ from matplotlib.colors import LogNorm
 
 
 # modifiable settings: cluster #, PC #
-clusternum = 6
+clusternum = 3
 
 # load the data
 data = np.loadtxt('atp_cresults0.7threshold2000cells.txt.gz')
@@ -41,7 +41,7 @@ k_means_sorted = tdata[:, 1:]
 # make plots
 fig, axs = plt.subplots(1, 3)
 # plot it
-im = axs[2].imshow(k_means_sorted, cmap='bwr', aspect='auto', vmin=data.min(), vmax=data.max())
+im = axs[2].imshow(k_means_sorted, cmap='bwr', aspect='auto', vmin=-data.max()/10, vmax=data.max()/10)
 divider = make_axes_locatable(axs[2])
 cax = divider.append_axes('right', size='5%', pad=0.05)
 fig.colorbar(im, cax=cax, orientation='vertical', label='Log Fold-Change')

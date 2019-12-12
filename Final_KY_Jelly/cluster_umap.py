@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 
 # modifiable settings: cluster #, PC #
-clusternum = 6
+clusternum = 4
 
 # load the data
 data = np.loadtxt('atp_cresults0.7threshold2000cells.txt.gz')
