@@ -11,10 +11,10 @@ from sklearn.manifold import TSNE
 # Modifiable settings:
 
 # Load the data
-data = np.loadtxt("atp_cresults0.7thresh`old8444cells.txt.gz")
+data = np.loadtxt("atp_cresults0.7threshold2000cells.txt.gz")
 
 # Collect the names of genes, which are separate by an ";"
-dimf = open("atp_cdimensions_of_results0.7threshold8444cells.txt", "r")
+dimf = open("atp_cdimensions_of_results0.7threshold2000cells.txt", "r")
 dimnames = dimf.readline().split(";")
 
 # Make this so that cell nums are on the rows to cluster cells
@@ -41,9 +41,8 @@ indxs = np.flip(np.argsort(eigVal))
 eigVec = eigVec[:, indxs]
 eigVal = eigVal[indxs]
 
-reduced = np.matmul(centered.T, eigVec[:, 0:3])
+reduced = np.matmul(centered.T, eigVec[:, 0:4])
 
-clusters = 6
 
 reduced_tsne = TSNE().fit_transform(reduced)
 
@@ -52,12 +51,15 @@ print(reduced_tsne.shape)
 # plt.scatter(reduced_tsne[:, 0], reduced_tsne[:, 1])
 # plt.show()
 
+clusters = 5
+
 __, kIndx = kmeans2(data, clusters, minit = "points")
 
 for i in range(clusters):
     clusterReduced = reduced_tsne[np.where(kIndx == i)]
     plt.scatter(clusterReduced[:, 0], clusterReduced[:, 1], s = 3)
-plt.title("PCA of Gene Expression, Colored by K-Means MI with 6 Clusters")
+
+# plt.title("PCA of Gene Expression, Colored by K-Means MI with 6 Clusters")
 plt.xlabel("PCA 1")
 plt.ylabel("PCA 2")
 plt.show()
